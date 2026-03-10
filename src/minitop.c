@@ -30,13 +30,11 @@ bool is_pid(char* str) {
     return true;
 }
 
-char* get_cmd(char* pid) {
+char* get_file_content(char* path) {
     size_t length = 0;
     size_t capacity = 1024;
     char* buffer = malloc(capacity);
 
-    char path[1024];
-    snprintf(path, sizeof(path), "/proc/%s/cmdline", pid);
     FILE* f = fopen(path, "r");
 
     if (f) {
@@ -65,6 +63,12 @@ char* get_cmd(char* pid) {
         return buffer;
     }
     return "N/A";
+}
+
+char* get_cmd(char* pid) {
+    char path[1024];
+    snprintf(path, sizeof(path), "/proc/%s/cmdline", pid);
+    return get_file_content(path);
 }
 
 int run_minitop() {
