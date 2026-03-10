@@ -4,6 +4,7 @@
 #include <dirent.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 // Requirements v 1.0.0:
@@ -30,7 +31,40 @@ bool is_pid(char* str) {
 }
 
 char* get_cmd(char* pid) {
-    return "tbd";
+    size_t length = 0;
+    size_t capacity = 1024;
+    char* buffer = malloc(capacity);
+
+    char path[1024];
+    snprintf(path, sizeof(path), "/proc/%s/cmdline", pid);
+    FILE* f = fopen(path, "r");
+
+    if (f) {
+        if (buffer) {
+            int c;
+            while ((c = fgetc(f)) != EOF) {
+                if (length + 1 >= capacity) {
+                    capacity *= 2;
+                    char* tmp = realloc(buffer, capacity);
+                    if (!tmp) {
+                        free(buffer);
+                        fclose(f);
+                        return "N/A";
+                    }
+                    buffer = tmp;
+                }
+                buffer[length++] = (char)c;
+            }
+            buffer[length] = '\0';
+        }
+    }
+
+    fclose(f);
+
+    if (buffer) {
+        return buffer;
+    }
+    return "N/A";
 }
 
 int run_minitop() {
